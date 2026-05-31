@@ -6,23 +6,52 @@ const regd_users = express.Router();
 let users = [];
 
 const isValid = (username)=>{ //returns boolean
-//write code to check is the username is valid
+  let filteredUsers = users.filter(
+    (user) => user.username === username
+  )
+  return !filteredUsers.length > 0;
 }
 
-const authenticatedUser = (username,password)=>{ //returns boolean
-//write code to check if username and password match the one we have in records.
+const authenticatedUser = (username,password)=>{
+  let filteredUser = users.filter(
+    (user) => user.username === username
+  )
+
+  if (filteredUser.length > 0){
+    if (filteredUser[0].password === password){
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
 }
 
 //only registered users can login
 regd_users.post("/login", (req,res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  let {username, password} = req.body
+
+  if (authenticatedUser(username,password)){
+    const payload = {user: username};
+    const secretKey = "fingerprint_customer";
+    const options = {expiresIn: "1h"}
+
+    let accessToken = jwt.sign(payload, secretKey, options);
+
+    res.setHeader('Authorization', `Bearer ${accessToken}`);
+
+    res.status(200).json({message:"user logged in successfully"});
+
+  } else {
+    res.status(401).json({message:"Invalid email or password"});
+  }
 });
 
 // Add a book review
-regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+// http://localhost:5000/customer/auth/review/5
+regd_users.put("auth/review/:isbn", (req, res) => {
+  return res.status(200).json({message:'recieved'})
 });
 
 module.exports.authenticated = regd_users;
