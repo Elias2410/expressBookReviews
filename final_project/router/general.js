@@ -35,16 +35,19 @@ public_users.get('/', async function (req, res) {
 });
 
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  let isbn = req.params.isbn
-
-  let filteredBooks = Object.entries(books).filter(
-    (book) => book[0] === isbn
-  )
-
-  filteredBooks = Object.fromEntries(filteredBooks)
-
-  return res.status(200).send(JSON.stringify(filteredBooks, null, 4));
+public_users.get('/isbn/:isbn',async function (req, res) {
+  let isbn = req.params.isbn;
+  try {
+    let response = await axios.get("http://localhost:3000/");
+    let filteredBooks = Object.entries(response.data).filter(
+      (book) => book[0] === isbn
+    )
+    filteredBooks = Object.fromEntries(filteredBooks);
+    return res.status(200).send(filteredBooks);
+  } catch (error) {
+    console.log(error.message)
+    return res.status(500).json({message:"error fetching data"});
+  }
  });
 
 // Get book details based on author
