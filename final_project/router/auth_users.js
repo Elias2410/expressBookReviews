@@ -58,13 +58,21 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
     return book[0] === isbn;
   })
 
+  let bookReviews = filteredBooks[0][1].reviews;
+
   if (filteredBooks.length > 0){
     if (filteredBooks[0][1].reviews[user]){
       filteredBooks[0][1].reviews[user] = review;
-      return res.status(200).send("Review modified successfully")
+      return res.status(200).json({
+        message: "Review modified successfully",
+        reviews: bookReviews,
+      })
     } else {
       filteredBooks[0][1].reviews[user] = review;
-      return res.status(200).send("Review added successfully")
+      return res.status(200).json({
+        message: "Review added successfully",
+        reviews: bookReviews,
+      })
     }
   } else {
     return res.status(404).send("Invalid ISBN value")
