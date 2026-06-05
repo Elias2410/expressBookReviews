@@ -7,24 +7,19 @@ const app = express();
 
 app.use(express.json());
 
-
 app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUninitialized: true}))
 
 app.use("/customer/auth/*", function auth(req,res,next){
     let authToken = req.headers['authorization'];
     let token = authToken && authToken.split(' ')[1];
-
     if (!token){
         return res.status(401).json({message:"Access denied. No token provided."});
     }
-
     jwt.verify(token, 'fingerprint_customer', (err, decodedPayload) => {
         if (err) {
-        return res.status(403).json({message:"Token is invalid or expired."});
+            return res.status(403).json({message:"Token is invalid or expired."});
         }
-
-        res.user = decodedPayload;
-        
+        req.user = decodedPayload;
         next();
     });
 });

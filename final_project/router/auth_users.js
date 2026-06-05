@@ -49,9 +49,46 @@ regd_users.post("/login", (req,res) => {
 });
 
 // Add a book review
-// http://localhost:5000/customer/auth/review/5
-regd_users.put("auth/review/:isbn", (req, res) => {
-  return res.status(200).json({message:'recieved'})
+regd_users.put("/auth/review/:isbn", (req, res) => {
+  const review = req.query.review;
+  const isbn = req.params.isbn;
+  const user = req.user.user;
+
+  let filteredBooks = Object.entries(books).filter((book)=>{
+    return book[0] === isbn;
+  })
+
+  if (filteredBooks.length > 0){
+    if (filteredBooks[0][1].reviews[user]){
+      filteredBooks[0][1].reviews[user] = review;
+      return res.status(200).send("Review modified successfully")
+    } else {
+      filteredBooks[0][1].reviews[user] = review;
+      return res.status(200).send("Review added successfully")
+    }
+  } else {
+    return res.status(404).send("Invalid ISBN value")
+  }
+});
+
+regd_users.delete("/auth/review/:isbn", (req,res) => {
+  const isbn = req.params.isbn;
+  const user = req.user.user;
+
+  let filteredBooks = Object.entries(books).filter((book)=>{
+    return book[0] === isbn;
+  })
+
+  if (filteredBooks.length > 0){
+    if (filteredBooks[0][1].reviews[user]){
+      delete filteredBooks[0][1].reviews[user];
+      return res.status(200).send(`Comments asocciated with ${user} has been deleted`)
+    } else{
+      return res.status(404).send(`There is no comments associated with the user: ${user}`)
+    }
+  } else{
+    return res.status(404).send("Invalid ISBN value");
+  }
 });
 
 module.exports.authenticated = regd_users;
